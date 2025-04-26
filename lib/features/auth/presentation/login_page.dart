@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../common/app_drawer.dart';
+import 'common/app_drawer.dart';
 import 'register_page.dart';
 
 class LoginPage extends StatelessWidget {
@@ -35,7 +35,7 @@ class LoginPage extends StatelessWidget {
             const SizedBox(height: 30),
             ElevatedButton(
               onPressed: () {
-                // Aquí luego se agregará la lógica de validación
+                Navigator.pushReplacementNamed(context, '/home');
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.orange,

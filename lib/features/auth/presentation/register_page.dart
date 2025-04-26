@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../common/app_drawer.dart';
+import 'common/app_drawer.dart';
 import 'login_page.dart';
 
 class RegisterPage extends StatelessWidget {
