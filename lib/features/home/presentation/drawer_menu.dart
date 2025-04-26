@@ -3,6 +3,7 @@ import 'package:managewise_mobileproject/features/statistics/presentation/statis
 import 'package:managewise_mobileproject/features/backlog/presentation/backlog_page.dart';
 import 'package:managewise_mobileproject/features/board/presentation/board_page.dart';
 import 'package:managewise_mobileproject/features/issues/presentation/issues_page.dart';
+import 'package:managewise_mobileproject/features/meetings/presentation/meetings_page.dart';
 
 class DrawerMenu extends StatelessWidget {
   const DrawerMenu({super.key});
@@ -22,7 +23,7 @@ class DrawerMenu extends StatelessWidget {
           _buildDrawerItem(context, Icons.view_kanban, 'Board', const BoardPage()),
           _buildDrawerItem(context, Icons.bug_report, 'Issues', const IssuesPage()),
           //_buildDrawerItem(context, Icons.group, 'Members', const MembersPage()),
-          //_buildDrawerItem(context, Icons.meeting_room, 'Meetings', const MeetingsPage()),
+          _buildDrawerItem(context, Icons.meeting_room, 'Meetings', const MeetingsPage()),
           //_buildDrawerItem(context, Icons.settings, 'Configuration', const ConfigurationPage()),
         ],
       ),
