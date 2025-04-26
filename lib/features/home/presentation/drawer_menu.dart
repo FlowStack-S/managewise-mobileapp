@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:managewise_mobileproject/features/members/presentation/members_page.dart';
 import 'package:managewise_mobileproject/features/statistics/presentation/statistics_page.dart';
 import 'package:managewise_mobileproject/features/backlog/presentation/backlog_page.dart';
 import 'package:managewise_mobileproject/features/board/presentation/board_page.dart';
@@ -23,7 +24,7 @@ class DrawerMenu extends StatelessWidget {
           _buildDrawerItem(context, Icons.list_alt, 'Backlog', const BacklogPage()),
           _buildDrawerItem(context, Icons.view_kanban, 'Board', const BoardPage()),
           _buildDrawerItem(context, Icons.bug_report, 'Issues', const IssuesPage()),
-          //_buildDrawerItem(context, Icons.group, 'Members', const MembersPage()),
+          _buildDrawerItem(context, Icons.group, 'Members', MembersPage()),
           _buildDrawerItem(context, Icons.meeting_room, 'Meetings', const MeetingsPage()),
           _buildDrawerItem(context, Icons.settings, 'Configuration', const ConfigurationPage()),
         ],
