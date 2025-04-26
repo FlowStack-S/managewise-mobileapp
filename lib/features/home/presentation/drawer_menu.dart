@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:managewise_mobileproject/features/statistics/presentation/statistics_page.dart';
+import 'package:managewise_mobileproject/features/backlog/presentation/backlog_page.dart';
 
 class DrawerMenu extends StatelessWidget {
   const DrawerMenu({super.key});
@@ -15,7 +16,7 @@ class DrawerMenu extends StatelessWidget {
             child: Center(child: Text('Menu', style: TextStyle(fontSize: 24))),
           ),
           _buildDrawerItem(context, Icons.bar_chart, 'Statistics', const StatisticsPage()),
-          //_buildDrawerItem(context, Icons.list_alt, 'Backlog', const BacklogPage()),
+          _buildDrawerItem(context, Icons.list_alt, 'Backlog', const BacklogPage()),
           //_buildDrawerItem(context, Icons.view_kanban, 'Board', const BoardPage()),
           //_buildDrawerItem(context, Icons.bug_report, 'Issues', const IssuesPage()),
           //_buildDrawerItem(context, Icons.group, 'Members', const MembersPage()),
