@@ -1,0 +1,2 @@
+/Users/joaquincarbajal/Documents/Universidad/Ciclo 6/Aplicaciones para Dispositivos Móviles/Proyecto/managewise-mobileapp/android/app/.cxx/Debug/434o1a6z/armeabi-v7a/CMakeFiles/edit_cache.dir
+/Users/joaquincarbajal/Documents/Universidad/Ciclo 6/Aplicaciones para Dispositivos Móviles/Proyecto/managewise-mobileapp/android/app/.cxx/Debug/434o1a6z/armeabi-v7a/CMakeFiles/rebuild_cache.dir
