@@ -1,27 +1,129 @@
 import 'backlog_page.dart';
 import 'package:flutter/material.dart';
+import 'package:managewise_mobileproject/features/backlog/models/epic.dart';
+import 'package:managewise_mobileproject/features/backlog/models/user_story.dart';
+import 'package:managewise_mobileproject/features/backlog/services/backlog_service.dart';
 
-class BacklogItemsPage extends StatelessWidget {
+
+class BacklogItemsPage extends StatefulWidget {
   const BacklogItemsPage({super.key});
 
-  // Generadores de datos dummy
-  List<Map<String,String>> get userStories => List.generate(3, (i) => {
-    'US#': 'US${i+1}',
-    'Título': 'Historia ${i+1}',
-    'Descripción': 'Descripción de la historia ${i+1}',
-    'Responsable': 'Persona ${i+1}',
-    'Estimado': '${(i+1)*2}h',
-    'Estado': 'Abierto',
-  });
+  @override
+  State<BacklogItemsPage> createState() => _BacklogItemsPageState();
+}
 
-  List<Map<String,String>> get epics => List.generate(3, (i) => {
-    'Epic#': 'EP${i+1}',
-    'Título': 'Épica ${i+1}',
-    'Descripción': 'Descripción de la épica ${i+1}',
-    'Responsable': 'Equipo ${i+1}',
-    'Estimado': '${(i+1)*5}h',
-    'Estado': 'Planificado',
-  });
+class _BacklogItemsPageState extends State<BacklogItemsPage> {
+  final backlogService = BacklogService();
+
+  List<UserStory> userStories = [];
+  List<Epic> epics = [];
+
+  @override
+  void initState() {
+    super.initState();
+    loadData();
+  }
+
+  Future<void> loadData() async {
+    final fetchedStories = await backlogService.fetchUserStories();
+    final fetchedEpics = await backlogService.fetchEpics();
+    setState(() {
+      userStories = fetchedStories;
+      epics = fetchedEpics;
+    });
+  }
+
+  Future<void> showCreateUserStoryDialog() async {
+    final titleController = TextEditingController();
+    final descController = TextEditingController();
+    final effortController = TextEditingController();
+
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Create User Story'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(controller: titleController, decoration: const InputDecoration(labelText: 'Title')),
+            TextField(controller: descController, decoration: const InputDecoration(labelText: 'Description')),
+            TextField(controller: effortController, decoration: const InputDecoration(labelText: 'Effort')),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              await backlogService.createUserStory(
+                titleController.text,
+                descController.text,
+                int.tryParse(effortController.text) ?? 1,
+              );
+              Navigator.pop(context);
+              loadData();
+            },
+            child: const Text('Create'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> showCreateEpicDialog() async {
+    final titleController = TextEditingController();
+    final descController = TextEditingController();
+
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Create Epic'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(controller: titleController, decoration: const InputDecoration(labelText: 'Title')),
+            TextField(controller: descController, decoration: const InputDecoration(labelText: 'Description')),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              await backlogService.createEpic(
+                titleController.text,
+                descController.text,
+              );
+              Navigator.pop(context);
+              loadData();
+            },
+            child: const Text('Create'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildUserStoriesList() {
+    return _buildHorizontalList(
+      userStories.map((e) => {
+        'US#': 'US${e.id}',
+        'Título': e.title,
+        'Descripción': e.description,
+        'Estimado': '${e.effort}h',
+        'Estado': e.status,
+      }).toList(),
+      ['US#', 'Título', 'Descripción', 'Estimado', 'Estado'],
+    );
+  }
+
+  Widget _buildEpicsList() {
+    return _buildHorizontalList(
+      epics.map((e) => {
+        'Epic#': 'EP${e.id}',
+        'Título': e.title,
+        'Descripción': e.description,
+        'Estado': e.status,
+      }).toList(),
+      ['Epic#', 'Título', 'Descripción', 'Estado'],
+    );
+  }
 
   Widget _buildHorizontalList(List<Map<String,String>> items, List<String> keys) {
     return SizedBox(
@@ -43,10 +145,7 @@ class BacklogItemsPage extends StatelessWidget {
                   for (var k in keys)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 4),
-                      child: Text(
-                        '$k: ${data[k]}',
-                        style: const TextStyle(fontSize: 14),
-                      ),
+                      child: Text('$k: ${data[k]}', style: const TextStyle(fontSize: 14)),
                     ),
                 ],
               ),
@@ -68,65 +167,37 @@ class BacklogItemsPage extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      // <- Cambiamos Column rígido por ListView
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: ListView(
           children: [
-            // User Stories Section
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('User Stories',
-                    style:
-                    TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                const Text('User Stories', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                 ElevatedButton(
-                  onPressed: () {
-                    // lógica de crear User Story
-                  },
+                  onPressed: showCreateUserStoryDialog,
                   child: const Text('Create'),
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue),
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
                 ),
               ],
             ),
             const SizedBox(height: 8),
-            _buildHorizontalList(userStories, [
-              'US#',
-              'Título',
-              'Descripción',
-              'Responsable',
-              'Estimado',
-              'Estado'
-            ]),
+            _buildUserStoriesList(),
             const SizedBox(height: 24),
-
-            // Epics Section
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Epics',
-                    style:
-                    TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                const Text('Epics', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                 ElevatedButton(
-                  onPressed: () {
-                    // lógica de crear Epic
-                  },
+                  onPressed: showCreateEpicDialog,
                   child: const Text('Create'),
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green),
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
                 ),
               ],
             ),
             const SizedBox(height: 8),
-            _buildHorizontalList(epics, [
-              'Epic#',
-              'Título',
-              'Descripción',
-              'Responsable',
-              'Estimado',
-              'Estado'
-            ]),
+            _buildEpicsList(),
           ],
         ),
       ),

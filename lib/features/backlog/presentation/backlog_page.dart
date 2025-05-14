@@ -1,8 +1,91 @@
-import 'backlog_items_page.dart';
 import 'package:flutter/material.dart';
+import '../services/backlog_service.dart';
+import '../models/user_story.dart';
+import 'backlog_items_page.dart';
+import 'package:managewise_mobileproject/features/backlog/models/epic.dart';
+import 'package:managewise_mobileproject/features/backlog/models/user_story.dart';
+import 'package:managewise_mobileproject/features/backlog/services/backlog_service.dart';
 
-class BacklogPage extends StatelessWidget {
+
+class BacklogPage extends StatefulWidget {
   const BacklogPage({super.key});
+
+  @override
+  State<BacklogPage> createState() => _BacklogPageState();
+}
+
+class _BacklogPageState extends State<BacklogPage> {
+  final backlogService = BacklogService();
+
+  List<UserStory> productBacklog = [];
+  List<UserStory> sprintBacklog = [];
+
+  @override
+  void initState() {
+    super.initState();
+    loadBacklogs();
+  }
+
+  Future<void> loadBacklogs() async {
+    final allStories = await backlogService.fetchUserStories();
+
+    setState(() {
+      productBacklog = allStories.where((us) => us.sprintId == null || us.sprintId == 0).toList();
+      sprintBacklog = allStories.where((us) => us.sprintId != null && us.sprintId != 0).toList();
+    });
+  }
+
+  Future<void> showAddUserStoryDialog() async {
+    final titleController = TextEditingController();
+    final descController = TextEditingController();
+    final effortController = TextEditingController();
+
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Add User Story'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(controller: titleController, decoration: const InputDecoration(labelText: 'Title')),
+            TextField(controller: descController, decoration: const InputDecoration(labelText: 'Description')),
+            TextField(controller: effortController, decoration: const InputDecoration(labelText: 'Effort')),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              await backlogService.createUserStory(
+                titleController.text,
+                descController.text,
+                int.tryParse(effortController.text) ?? 1,
+              );
+              Navigator.pop(context);
+              loadBacklogs();
+            },
+            child: const Text('Create'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildUserStoryCard(UserStory story) {
+    return Card(
+      color: Colors.grey[200],
+      margin: const EdgeInsets.only(bottom: 8.0),
+      child: ListTile(
+        title: Text(story.title),
+        subtitle: Text('Status: ${story.status} • Effort: ${story.effort}h'),
+        trailing: IconButton(
+          icon: const Icon(Icons.close),
+          onPressed: () {
+            // Aquí puedes agregar lógica para eliminar la historia si deseas
+          },
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -13,105 +96,55 @@ class BacklogPage extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: ListView(
           children: [
-            // Button for "Items"
+            // Botón Items
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (_) => const BacklogItemsPage()),
+                  MaterialPageRoute(builder: (_) => const BacklogItemsPage()),
                 );
               },
               child: const Text('Items'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange, // Button color
-              ),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
             ),
             const SizedBox(height: 16),
 
-            // Product Backlog Section
-            const Text(
-              'Product Backlog',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            // List of Product Backlog
-            Column(
-              children: List.generate(3, (index) {
-                return Card(
-                  color: Colors.grey[200],
-                  margin: const EdgeInsets.only(bottom: 8.0),
-                  child: ListTile(
-                    title: const Text('US Title'),
-                    subtitle: const Text('Status'),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () {
-                        // Action to delete item
-                      },
-                    ),
-                  ),
-                );
-              }),
-            ),
+            // PRODUCT BACKLOG
+            const Text('Product Backlog', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            ...productBacklog.map(buildUserStoryCard),
             const SizedBox(height: 32),
 
-            // Sprint Backlog Section
-            const Text(
-              'Sprint Backlog',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            // List of Sprint Backlog with Start button
-            Column(
-              children: List.generate(3, (index) {
-                return Card(
-                  color: Colors.grey[200],
-                  margin: const EdgeInsets.only(bottom: 8.0),
-                  child: ListTile(
-                    title: const Text('US Title'),
-                    subtitle: const Text('Status'),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () {
-                        // Action to delete item
-                      },
-                    ),
-                  ),
-                );
-              }),
-            ),
-            const SizedBox(height: 16),
+            // SPRINT BACKLOG
+            const Text('Sprint Backlog', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            ...sprintBacklog.map(buildUserStoryCard),
 
-            // Button to start Sprint
+            const SizedBox(height: 16),
             Align(
               alignment: Alignment.centerRight,
               child: ElevatedButton(
                 onPressed: () {
-                  // Action for Start button
+                  // Acción para iniciar el sprint
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    content: Text('Sprint iniciado (placeholder).'),
+                  ));
                 },
                 child: const Text('Start'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green, // Button color
-                ),
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
               ),
             ),
             const SizedBox(height: 32),
 
-            // Add User Story Button
+            // AGREGAR NUEVA US
             Align(
               alignment: Alignment.centerRight,
               child: ElevatedButton(
-                onPressed: () {
-                  // Action to Add User Story
-                },
+                onPressed: showAddUserStoryDialog,
                 child: const Text('Add User Story'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue, // Button color
-                ),
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
               ),
             ),
           ],
@@ -119,10 +152,4 @@ class BacklogPage extends StatelessWidget {
       ),
     );
   }
-}
-
-void main() {
-  runApp(MaterialApp(
-    home: const BacklogPage(),
-  ));
 }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'common/app_drawer.dart';
 import 'login_page.dart';
+import 'package:managewise_mobileproject/features/auth/data/auth_service.dart';
+import 'package:managewise_mobileproject/features/auth/data/models/sign_up_request.dart';
 
 class RegisterPage extends StatelessWidget {
   const RegisterPage({super.key});
@@ -52,11 +54,51 @@ class RegisterPage extends StatelessWidget {
             ),
             const SizedBox(height: 30),
             ElevatedButton(
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (_) => const LoginPage()),
-                );
+              onPressed: () async {
+                final authService = AuthService();
+
+                final success = await authService.signUp(SignUpRequest(
+                  username: usernameController.text.trim(),
+                  password: passwordController.text.trim(),
+                  email: emailController.text.trim(),
+                  firstName: firstNameController.text.trim(),
+                  lastName: lastNameController.text.trim(),
+                ));
+
+                if (success) {
+                  showDialog(
+                    context: context,
+                    builder: (_) => AlertDialog(
+                      title: const Text('Registration Successful'),
+                      content: const Text('You can now log in.'),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(builder: (_) => const LoginPage()),
+                            );
+                          },
+                          child: const Text('OK'),
+                        ),
+                      ],
+                    ),
+                  );
+                } else {
+                  showDialog(
+                    context: context,
+                    builder: (_) => AlertDialog(
+                      title: const Text('Registration Failed'),
+                      content: const Text('Check your data or try a different username.'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('OK'),
+                        ),
+                      ],
+                    ),
+                  );
+                }
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.orange,
