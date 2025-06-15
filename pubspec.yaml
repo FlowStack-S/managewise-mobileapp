@@ -30,7 +30,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  syncfusion_flutter_charts: ^29.1.39
+  syncfusion_flutter_charts: 29.1.38
   http: ^1.4.0
   flutter_secure_storage: ^9.0.0
 

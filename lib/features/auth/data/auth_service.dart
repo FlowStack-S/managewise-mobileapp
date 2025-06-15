@@ -7,7 +7,7 @@ import 'models/sign_up_request.dart';
 
 class AuthService {
   final _storage = const FlutterSecureStorage();
-  final String _baseUrl = 'http://10.0.2.2:8090'; // Android emulator
+  final String _baseUrl = 'https://managewise-backend-hfadgugthcc2erdd.centralus-01.azurewebsites.net';
 
   Future<AuthenticatedUser?> signIn(SignInRequest request) async {
     final url = Uri.parse('$_baseUrl/api/v1/authentication/sign-in');
